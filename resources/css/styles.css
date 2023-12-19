@@ -1,0 +1,38 @@
+html {
+    background-color: black;
+    color: white;
+    font-family: 'Consolas', monospace;
+    overflow: hidden;
+    overflow-y: visible;
+}
+
+body {
+    margin: 0;
+}
+
+#console {
+    display: grid;
+    width: min(99dvw, 1000px);
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 0.8dvh;
+}
+
+.consoleRow {
+    white-space: pre-wrap;
+    font-size: 0;
+}
+
+/*
+.consoleColumn {
+
+}
+*/
+
+.text-blue {
+    color: blue;
+}
+
+.text-red {
+    color: red;
+}
