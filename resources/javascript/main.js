@@ -36,7 +36,7 @@ async function stateMachine() {
  * @returns {State} the game state
  */
 async function mainMenu() {
-    newLine();
+    PseudoConsole.newLine();
     await displayTitle();
     await displayDivider();
     await wait(1000);
