@@ -11,7 +11,7 @@
 
 /** Plays the game. */
 async function stateMachine() {
-    state = 'start';
+    let     state = 'start';
     while (state != 'quit') {
         switch (state) {
             case 'start':
@@ -36,6 +36,7 @@ async function stateMachine() {
  * @returns {State} the game state
  */
 async function mainMenu() {
+    newLine();
     await displayTitle();
     await displayDivider();
     await wait(1000);
