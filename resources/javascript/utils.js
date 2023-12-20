@@ -4,7 +4,7 @@
  * Waits for the specified number of milliseconds.
  * @param {Number} milliseconds milliseconds to wait
  */
-function wait(milliseconds) {
+function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
     if (milliseconds == 0)
         return;
     return new Promise(resolve => setTimeout(resolve, milliseconds));
