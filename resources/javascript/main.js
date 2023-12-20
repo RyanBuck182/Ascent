@@ -41,7 +41,11 @@ async function stateMachine(state) {
 async function mainMenu() {
     await displayTitle();
     await displayDivider();
-    await PseudoConsole.printByChar('wasdwa§text-red§test§/§wadas');
+    await wait(1000);
+    await PseudoConsole.printByChar('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod!');
+    PseudoConsole.newLine();
+    await PseudoConsole.printByLine('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
+    await PseudoConsole.printByChar('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet co§/§nsectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
     return 'quit';
 }
 
@@ -51,7 +55,7 @@ async function mainMenu() {
 
 /** Displays the title image to the screen. */
 async function displayTitle() {
-    await PseudoConsole.printByChar(
+    await PseudoConsole.printByLine(
         setWidth("  ##      ## ##    ## ##   ### ###  ###  ##  #### ##", 'center') + '\n' +
         setWidth(" ## ##   ##   ##  ##   ##   ##  ##    ## ##  # ## ##", 'center') + '\n' +
         setWidth(" ##  ##  ####     ##        ##       # ## #    ##   ", 'center') + '\n' +
@@ -64,7 +68,7 @@ async function displayTitle() {
 
 /** Displays a divider to the screens. */
 async function displayDivider() {
-    await PseudoConsole.printByChar('-'.repeat(MAX_CHARS_PER_LINE));
+    await PseudoConsole.printByLine('-'.repeat(MAX_CHARS_PER_LINE));
 }
 
 /** Updates pseudo console font sizes. Runs when the page is resized. */

@@ -25,15 +25,39 @@ class PseudoConsole {
     }
     
     /**
-     * Print's a string instantly.
+     * Instantly prints a string to the pseudo console.
      * @param {String} text the text to print
      */
-    static async printInstant(text) {
-        await printByChar(text, 0);
+    static printInstant(text) {
+        let lines = this.pseudoConsole.querySelectorAll('.consoleRow');
+        let line = lines[lines.length - 1] || this.newLine();
+        let columns = line.querySelectorAll('.consoleColumn');
+
+        text = this.insertLineBreaks(text, line.value);
+
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] == '\n') {
+                line = this.newLine();
+                columns = line.querySelectorAll('.consoleColumn');
+                continue;
+            } else if (text[i] == CLASS_ACTIVATOR) {
+                let className = text.substring(i + 1, text.indexOf(CLASS_ACTIVATOR, i + 1));
+                if (className == '/')
+                    this.columnClasses = this.columnClasses.substring(0, this.columnClasses.lastIndexOf(' '));
+                else
+                    this.columnClasses += ' ' + className;
+                i += className.length + 1;
+                continue;
+            } else {
+                columns[line.value].className = this.columnClasses;
+                columns[line.value].textContent = text[i];
+                line.value++;
+            }
+        }
     }
     
     /**
-     * Prints a string. Pauses between each character.
+     * Prints a string to pseudo console. Pauses between each character.
      * @param {String} text the text to print
      * @param {Number} millisecondsBetween milliseconds between each character
      */
@@ -41,15 +65,13 @@ class PseudoConsole {
         let lines = this.pseudoConsole.querySelectorAll('.consoleRow');
         let line = lines[lines.length - 1] || this.newLine();
         let columns = line.querySelectorAll('.consoleColumn');
-        let currentColumn = line.value;
 
-        text = this.insertLineBreaks(text, currentColumn);
+        text = this.insertLineBreaks(text, line.value);
 
         for (let i = 0; i < text.length; i++) {
             if (text[i] == '\n') {
                 line = this.newLine();
                 columns = line.querySelectorAll('.consoleColumn');
-                currentColumn = 0;
                 continue;
             } else if (text[i] == CLASS_ACTIVATOR) {
                 let className = text.substring(i + 1, text.indexOf(CLASS_ACTIVATOR, i + 1));
@@ -61,12 +83,56 @@ class PseudoConsole {
                 continue;
             } else {
                 await wait(millisecondsBetween);
-                columns[currentColumn].className = this.columnClasses;
-                columns[currentColumn].textContent = text[i];
-                currentColumn++;
+                columns[line.value].className = this.columnClasses;
+                columns[line.value].textContent = text[i];
                 line.value++;
             }
         }
+    }
+
+    /**
+     * Prints a string to pseudo console. Pauses between each line.
+     * @param {String} text the text to print
+     * @param {Number} millisecondsBetween milliseconds between each line
+     */
+    static async printByLine(text, millisecondsBetween = MILLISECONDS_PER_LINE) {
+        let lines = this.pseudoConsole.querySelectorAll('.consoleRow');
+        let line = lines[lines.length - 1] || this.newLine();
+        let columns = line.querySelectorAll('.consoleColumn');
+
+        text = this.insertLineBreaks(text, line.value);
+
+        let lineText = '';
+        async function printLine() {
+            await wait(millisecondsBetween);
+            for (let j = lineText.length - 1; j >= 0; j--)
+            columns[line.value - 1 - j].textContent = lineText[lineText.length - 1 - j];
+        }
+
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] == '\n') {
+                await printLine();
+                lineText = '';
+                line = this.newLine();
+                columns = line.querySelectorAll('.consoleColumn');
+                continue;
+            } else if (text[i] == CLASS_ACTIVATOR) {
+                let className = text.substring(i + 1, text.indexOf(CLASS_ACTIVATOR, i + 1));
+                if (className == '/')
+                    this.columnClasses = this.columnClasses.substring(0, this.columnClasses.lastIndexOf(' '));
+                else
+                    this.columnClasses += ' ' + className;
+                i += className.length + 1;
+                continue;
+            } else {
+                columns[line.value].className = this.columnClasses;
+                lineText += text[i];
+                line.value++;
+            }
+        }
+
+        if (text[text.length - 1] != '\n')
+            await printLine();
     }
 
     /**
@@ -114,6 +180,9 @@ class PseudoConsole {
                 lineCharCount = wordLength - 1;
             }
         }
+
+        if (lineCharCount == MAX_CHARS_PER_LINE)
+            text += '\n';
 
         return text;
     }
