@@ -2,7 +2,7 @@
 
 /**
  * Waits for the specified number of milliseconds.
- * @param {Number} milliseconds milliseconds to wait
+ * @param {Number} milliseconds Milliseconds to wait.
  */
 function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
     if (milliseconds == 0)
@@ -12,10 +12,10 @@ function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
 
 /**
  * Pads a string with spaces.
- * @param {String} text the string to set the width of
- * @param {'left' | 'center' | 'right'} justify how the string should be positioned
- * @param {String} width the width the string should be set to
- * @returns {String} the padded string
+ * @param {String} text The string to set the width of.
+ * @param {'left' | 'center' | 'right'} justify How the string should be positioned.
+ * @param {String} width The width the string should be set to.
+ * @returns {String} The padded string.
  */
 function setWidth(text, justify = 'left', width = MAX_CHARS_PER_LINE) {
     let remainingWidth = width - text.length;
