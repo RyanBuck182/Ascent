@@ -9,11 +9,8 @@
  * @typedef {'start' | 'mainMenu' | 'quit'} State
  */
 
-/**
- * Plays the game.
- * @param {State} state the game state
- */
-async function stateMachine(state) {
+/** Plays the game. */
+async function stateMachine() {
     state = 'start';
     while (state != 'quit') {
         switch (state) {
@@ -90,4 +87,4 @@ window.addEventListener('resize', updateFontSizes);
 //------------------------------------------------------------------------------------------
 
 updateFontSizes();
-stateMachine('start');
+stateMachine();
