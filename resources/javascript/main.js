@@ -33,17 +33,44 @@ async function stateMachine() {
 
 /**
  * Displays the main menu.
- * @returns {State} the game state
+ * @returns {State} The game state.
  */
 async function mainMenu() {
     PseudoConsole.newLine();
     await displayTitle();
     await displayDivider();
-    await wait(1000);
+    //await wait(1000);
     await PseudoConsole.printByChar('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod!');
     PseudoConsole.newLine();
     await PseudoConsole.printByLine('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
     await PseudoConsole.printByChar('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet co§/§nsectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
+    //await wait(1000);
+    PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt§/§ praesentium quod! ');
+    //await wait(1000);
+    PseudoConsole.clearLine(PseudoConsole.lines().length - 3);
+    //await wait(500);
+    await PseudoConsole.printByChar("should be white §text-blue§should be blue §text-red§should be red §text-blue§should be blue §/§should be red §/§should be blue §/§should be white")
+    //await wait(1000);
+    PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt§/§ praesentium quod! ');
+    //await wait(1000);
+    PseudoConsole.clearLine(PseudoConsole.lines().length - 3);
+    await wait(1000);
+    let coords;
+    await PseudoConsole.printByLine(
+        'testing1\n' +
+        'testing2\n' +
+        'testing3\n' +
+        'testing4\n'
+    ).then((resolve) => coords = resolve);
+    await wait(1000);
+    PseudoConsole.clearLines(coords.start.line, coords.end.line);
+    await wait(1000);
+    await PseudoConsole.printByLine(
+        'testing1\n' +
+        'testing2\n' +
+        'testing3\n' +
+        'testing4\n'
+    , undefined, coords.start.line).then((resolve) => coords = resolve);
     return 'quit';
 }
 
