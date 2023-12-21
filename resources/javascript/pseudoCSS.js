@@ -15,4 +15,4 @@ new PseudoCSSClass('background-red',
 );
 new PseudoCSSClass('background-inherit',
     element => { element.style.backgroundColor = 'inherit'; }
-)
+);
