@@ -22,17 +22,3 @@ body {
     white-space: pre-wrap;
     font-size: 0;
 }
-
-/*
-.consoleColumn {
-
-}
-*/
-
-.text-blue {
-    color: rgb(0, 115, 255);
-}
-
-.text-red {
-    color: red;
-}
