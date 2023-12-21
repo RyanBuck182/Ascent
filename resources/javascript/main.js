@@ -109,7 +109,7 @@ async function displayDivider() {
 
 /** Updates pseudo console font sizes. Runs when the page is resized. */
 function updateFontSizes() {
-    let lines = document.querySelectorAll('.consoleRow');
+    let lines = PseudoConsole.lines();
 
     for (let i = 0; i < lines.length; i++)
         lines[i].style.fontSize = PseudoConsole.pseudoConsoleFontSize();

@@ -128,7 +128,7 @@ class PseudoConsole {
      */
     static newLine() {
         let line = document.createElement('div');
-        line.className = 'consoleRow';
+        line.className = 'consoleLine';
         line.style.fontSize = this.pseudoConsoleFontSize();
         for (let i = 0; i < MAX_CHARS_PER_LINE; i++) {
             let char = document.createElement('span');
@@ -380,7 +380,7 @@ class PseudoConsole {
      * @returns {NodeListOf<Element>} The lines of the pseudo console. 
      */
     static lines() {
-        return this.pseudoConsole.querySelectorAll('.consoleRow');
+        return this.pseudoConsole.querySelectorAll('.consoleLine');
     }
 
     /**

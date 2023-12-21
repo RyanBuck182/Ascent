@@ -18,7 +18,7 @@ body {
     padding-top: 0.8dvh;
 }
 
-.consoleRow {
+.consoleLine {
     white-space: pre-wrap;
     font-size: 0;
 }
