@@ -39,49 +39,15 @@ async function mainMenu() {
     PseudoConsole.newLine();
     await displayTitle();
     await displayDivider();
-    await wait(500);
-    await PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod!');
-    PseudoConsole.newLine();
-    await PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
-    await PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor sit amet co§/§nsectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt praesentium quod! ');
-    await wait(500);
-    PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt§/§ praesentium quod! ');
-    await wait(500);
-    PseudoConsole.clearLine(PseudoConsole.lines().length - 3);
-    await wait(500);
-    await PseudoConsole.printInstant("should be white §text-blue§should be blue §text-red§should be red §text-blue§should be blue §/§should be red §/§should be blue §/§should be white")
-    await wait(500);
-    PseudoConsole.printInstant('wasdwa§text-red§test§/§wadas Lorem ipsum dolor §text-blue§sit amet consectetur adipisicing elit. Vitae, illo? Molestias deserunt id minus quasi nihil, voluptate, eum voluptas veniam placeat quisquam porro eligendi dignissimos. Esse accusantium deserunt§/§ praesentium quod! ');
-    await wait(500);
-    PseudoConsole.clearLine(PseudoConsole.lines().length - 3);
-    await wait(500);
-    let coords;
-    await PseudoConsole.printByLine(
-        'testing1\n' +
-        'testing2\n' +
-        'testing3\n' +
-        'testing4\n'
-    , 10).then((resolve) => coords = resolve);
-    await wait(500);
-    PseudoConsole.clearLines(coords.start.line, coords.end.line);
-    await wait(500);
-    await PseudoConsole.printByLine(
-        'testing1\n' +
-        'testing2\n' +
-        'testing3\n' +
-        'testing4\n'
-    , 10, coords.start.line).then((resolve) => coords = resolve);
-    await PseudoConsole.printByChar('\n§text-bold text-blue background-red§blue on red§background-inherit§ §/§§text-red background-blue§red o§/text-bold§n blue§background-inherit§ §/§§//§blue on red§//§');
-    await PseudoConsole.printByChar(
-        '\n§text-bold text-blue§' + 'bold&blue-' + '§/text-bold text-red§' + 'red-' + '§//§' + 'white\n' +
-        '§text-bold text-bold§' + 'bold-' + '§/text-bold§' + 'bold-' + '§/text-bold§' + 'notbold\n' +
-        '§text-bold text-bold§' + 'bold-' + '§/text-bold/§' + 'notbold\n' +
-        '§text-blue text-bold text-red§' + 'bold&red-' + '§/text-bold/text-blue§' + 'red-' + '§/§' + 'white\n' +
-        '§text-bold background-blue text-blue text-blue text-red§' + 'bold&redonblue-' + '§//text-blue//text-bold§' + 'whiteonblue' + '§/§' + 'white\n' +
-        '§text-red§' + 'red-' + '§/ text-blue§' + 'blue-' + '§text-bold /§' + 'blue-' + '§/ text-bold§' + 'bold-' + '§/§' + 'white\n' +
-        '§text-blue§' + 'blue-' + '§text-red /text-blue /§' + 'white\n'
-    );
-    
+
+    let coords = await PseudoConsole.printByChar('\n\nEnter something: ');
+    let input = await PseudoConsole.getTextInput(coords.end);
+    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
+    wait(500);
+    await PseudoConsole.printByChar('\n\nPress enter to continue...');
+    await PseudoConsole.waitForEnter();
+    await PseudoConsole.printByChar('\nYou pressed enter!!!');
+
     return 'quit';
 }
 
@@ -109,9 +75,11 @@ async function displayDivider() {
 
 /** Updates pseudo console font sizes. Runs when the page is resized. */
 function updateFontSizes() {
+    let fontSize = PseudoConsole.fontSize();
+
     let lines = PseudoConsole.lines();
     for (let i = 0; i < lines.length; i++)
-        lines[i].style.fontSize = PseudoConsole.pseudoConsoleFontSize();
+        lines[i].style.fontSize = fontSize;
 }
 
 //------------------------------------------------------------------------------------------

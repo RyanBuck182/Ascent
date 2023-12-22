@@ -20,5 +20,20 @@ body {
 
 .consoleLine {
     white-space: pre-wrap;
-    font-size: 0;
+}
+
+#consoleInput {
+    position: absolute;
+    background: inherit;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    padding: 0;
+}
+
+#consoleInput:focus {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
 }

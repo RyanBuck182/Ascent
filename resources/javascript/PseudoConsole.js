@@ -14,6 +14,12 @@ class PseudoConsole {
      * @type {Element}
      */
     static pseudoConsole = document.getElementById('console');
+
+    /**
+     * The console input html element.
+     * @type {Element}
+     */
+    static consoleInput = document.getElementById('consoleInput');
     
     /**
      * The list of identifiers associated with the pseudo classes to apply to pseudo console output.
@@ -129,13 +135,13 @@ class PseudoConsole {
     static newLine() {
         let line = document.createElement('div');
         line.className = 'consoleLine';
-        line.style.fontSize = this.pseudoConsoleFontSize();
+        line.style.fontSize = this.fontSize();
         for (let i = 0; i < MAX_CHARS_PER_LINE; i++) {
             let char = document.createElement('span');
             char.textContent = ' ';
             line.appendChild(char);
         }
-        line.value = 0;
+        line.column = 0;
         this.pseudoConsole.appendChild(line);
         return line;
     }
@@ -153,10 +159,10 @@ class PseudoConsole {
         let line = lines[lineIndex];
         let columns = this.columns(line);
 
-        line.value = (startingColumn == 'last') ? line.value : startingColumn;
-        text = this.#insertLineBreaks(text, line.value);
+        line.column = (startingColumn == 'last') ? line.column : startingColumn;
+        text = this.#insertLineBreaks(text, line.column);
 
-        let startCoords = { line: lineIndex, column: line.value };
+        let startCoords = { line: lineIndex, column: line.column };
 
         for (let i = 0; i < text.length; i++) {
             if (text[i] == '\n') {
@@ -171,13 +177,13 @@ class PseudoConsole {
                 i = (endIndex == -1) ? text.length - 1 : endIndex;
                 continue;
             } else {
-                this.applyOutputClasses(columns[line.value]);
-                columns[line.value].textContent = text[i];
-                line.value++;
+                this.applyOutputClasses(columns[line.column]);
+                columns[line.column].textContent = text[i];
+                line.column++;
             }
         }
 
-        let endCoords = { line: lineIndex, column: line.value };
+        let endCoords = { line: lineIndex, column: line.column };
         return { start: startCoords, end: endCoords };
     }
     
@@ -195,10 +201,10 @@ class PseudoConsole {
         let line = lines[lineIndex];
         let columns = this.columns(line);
 
-        line.value = (startingColumn == 'last') ? line.value : startingColumn;
-        text = this.#insertLineBreaks(text, line.value);
+        line.column = (startingColumn == 'last') ? line.column : startingColumn;
+        text = this.#insertLineBreaks(text, line.column);
 
-        let startCoords = { line: lineIndex, column: line.value };
+        let startCoords = { line: lineIndex, column: line.column };
 
         for (let i = 0; i < text.length; i++) {
             if (text[i] == '\n') {
@@ -214,14 +220,14 @@ class PseudoConsole {
                 continue;
             } else {
                 await wait(millisecondsBetween);
-                this.applyOutputClasses(columns[line.value]);
-                columns[line.value].textContent = text[i];
-                line.value++;
+                this.applyOutputClasses(columns[line.column]);
+                columns[line.column].textContent = text[i];
+                line.column++;
             }
         }
 
-        let endCoords = { line: lineIndex, column: line.value };
-        return { start: startCoords, end: endCoords };
+        let endCoords = { line: lineIndex, column: line.column };
+        return new Promise (resolve => resolve({ start: startCoords, end: endCoords }));
     }
 
     /**
@@ -238,16 +244,16 @@ class PseudoConsole {
         let line = lines[lineIndex];
         let columns = this.columns(line);
 
-        line.value = (startingColumn == 'last') ? line.value : startingColumn;
-        text = this.#insertLineBreaks(text, line.value);
+        line.column = (startingColumn == 'last') ? line.column : startingColumn;
+        text = this.#insertLineBreaks(text, line.column);
 
-        let startCoords = { line: lineIndex, column: line.value };
+        let startCoords = { line: lineIndex, column: line.column };
 
         let lineText = '';
         async function printLine() {
             await wait(millisecondsBetween);
             for (let j = lineText.length - 1; j >= 0; j--)
-                columns[line.value - 1 - j].textContent = lineText[lineText.length - 1 - j];
+                columns[line.column - 1 - j].textContent = lineText[lineText.length - 1 - j];
         }
 
         for (let i = 0; i < text.length; i++) {
@@ -265,17 +271,17 @@ class PseudoConsole {
                 i = (endIndex == -1) ? text.length - 1 : endIndex;
                 continue;
             } else {
-                this.applyOutputClasses(columns[line.value]);
+                this.applyOutputClasses(columns[line.column]);
                 lineText += text[i];
-                line.value++;
+                line.column++;
             }
         }
 
         if (text[text.length - 1] != '\n')
             await printLine();
 
-        let endCoords = { line: lineIndex, column: line.value };
-        return { start: startCoords, end: endCoords };
+        let endCoords = { line: lineIndex, column: line.column };
+        return new Promise (resolve => resolve({ start: startCoords, end: endCoords }));
     }
     
     /**
@@ -288,7 +294,7 @@ class PseudoConsole {
             columns[i].style.cssText = '';
             columns[i].textContent = ' ';
         }
-        line.value = 0;
+        line.column = 0;
     }
 
     /**
@@ -368,10 +374,88 @@ class PseudoConsole {
     }
 
     /**
+     * Gets text input from the user.
+     * @param {ConsoleCoordinate} coordinates The coordinates to start the input at.
+     * @returns {Promise<String>} The text input.
+     */
+    static async getTextInput(coordinates) {
+        let line = this.lines()[coordinates.line];
+        let column = this.columns(line)[coordinates.column];
+        let columnRect = column.getBoundingClientRect();
+
+        /** Sizes and positions the input element. */
+        let transformInput = () => {
+            columnRect = column.getBoundingClientRect();
+            PseudoConsole.consoleInput.style.fontSize = this.fontSize();
+            this.consoleInput.style.top = columnRect.top + 'px';
+            this.consoleInput.style.left = columnRect.left + 'px';
+        }
+
+        /** Focuses the input when the user starts typing. */
+        let focusOnType = () => {
+            let listener;
+            document.addEventListener('keypress', listener = () => {
+                document.removeEventListener('keypress', listener);
+                this.consoleInput.focus();
+            });
+        }
+
+        //Pre input
+        window.addEventListener('resize', transformInput);
+        this.consoleInput.addEventListener('focusout', focusOnType);
+
+        transformInput();
+        this.consoleInput.type = 'text';
+        this.consoleInput.maxLength = MAX_CHARS_PER_LINE - coordinates.column;
+        this.consoleInput.size = this.consoleInput.maxLength;
+        this.consoleInput.hidden = false;
+        this.consoleInput.focus();
+
+        await this.#waitForInput();
+
+        //Post input
+        this.consoleInput.hidden = true;
+
+        window.removeEventListener('resize', transformInput);
+        this.consoleInput.removeEventListener('focusout', focusOnType);
+
+        let input = this.consoleInput.value; 
+        this.consoleInput.value = '';
+        this.printInstant(input, coordinates.line, coordinates.column);
+        return new Promise (resolve => resolve(input));
+    }
+
+    /** Waits until the user presses enter. */
+    static async waitForEnter() {
+        return new Promise(resolve => {
+            let listener;
+            document.addEventListener('keypress', listener = (event) => {
+                if (event.key === 'Enter') {
+                    document.removeEventListener('keypress', listener);
+                    resolve();
+                }
+            });
+        });
+    }
+
+    /** Waits until the user presses enter in the input box. */
+    static async #waitForInput() {
+        return new Promise(resolve => {
+            let listener;
+            this.consoleInput.addEventListener('keypress', listener = (event) => {
+                if (event.key === 'Enter') {
+                    this.consoleInput.removeEventListener('keypress', listener);
+                    resolve();
+                }
+            });
+        });
+    }
+
+    /**
      * Returns the appropriate font size for the current screen size.
      * @returns {String} The font size.
      */
-    static pseudoConsoleFontSize() {
+    static fontSize() {
         return (this.pseudoConsole.offsetWidth * FONT_SIZE_PER_CONSOLE_WIDTH) + 'px';
     }
 
