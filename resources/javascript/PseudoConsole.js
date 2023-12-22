@@ -9,16 +9,16 @@
 
 /** Functions associated with the pseudoconsole. Everything is static. */
 class PseudoConsole {
-    /** 
-     * The pseudo console html element.
-     * @type {Element}
-     */
+    static MAX_CHARS_PER_LINE = 90;
+    static DEFAULT_MILLISECONDS_PER_CHAR = 20;
+    static DEFAULT_MILLISECONDS_PER_LINE = this.DEFAULT_MILLISECONDS_PER_CHAR * 20;
+    static FONT_SIZE_PER_CONSOLE_WIDTH = 0.02;
+    static CLASS_ACTIVATOR = '§';
+
+    /** The pseudo console html element. */
     static pseudoConsole = document.getElementById('console');
 
-    /**
-     * The console input html element.
-     * @type {Element}
-     */
+    /** The console input html element. */
     static consoleInput = document.getElementById('consoleInput');
     
     /**
@@ -136,7 +136,7 @@ class PseudoConsole {
         let line = document.createElement('div');
         line.className = 'consoleLine';
         line.style.fontSize = this.fontSize();
-        for (let i = 0; i < MAX_CHARS_PER_LINE; i++) {
+        for (let i = 0; i < this.MAX_CHARS_PER_LINE; i++) {
             let char = document.createElement('span');
             char.textContent = ' ';
             line.appendChild(char);
@@ -170,8 +170,8 @@ class PseudoConsole {
                 line = lines[lineIndex] || this.newLine();
                 columns = this.columns(line);
                 continue;
-            } else if (text[i] == CLASS_ACTIVATOR) {
-                let endIndex = text.indexOf(CLASS_ACTIVATOR, i + 1);
+            } else if (text[i] == this.CLASS_ACTIVATOR) {
+                let endIndex = text.indexOf(this.CLASS_ACTIVATOR, i + 1);
                 let contents = text.substring(i + 1, (endIndex == -1) ? undefined : endIndex);
                 this.modifyOutputClasses(contents);
                 i = (endIndex == -1) ? text.length - 1 : endIndex;
@@ -195,7 +195,7 @@ class PseudoConsole {
      * @param {'last' | Number} startingColumn Index of the column to start printing at.
      * @returns {Promise<{ start: ConsoleCoordinate, end: ConsoleCoordinate }>} The coordinates where the function started and stopped printing.
      */
-    static async printByChar(text, millisecondsBetween = MILLISECONDS_PER_CHAR, startingLine = 'last', startingColumn = 'last') {
+    static async printByChar(text, millisecondsBetween = this.DEFAULT_MILLISECONDS_PER_CHAR, startingLine = 'last', startingColumn = 'last') {
         let lines = this.lines();
         let lineIndex = (startingLine == 'last') ? lines.length - 1 : startingLine;
         let line = lines[lineIndex];
@@ -212,8 +212,8 @@ class PseudoConsole {
                 line = lines[lineIndex] || this.newLine();
                 columns = this.columns(line);
                 continue;
-            } else if (text[i] == CLASS_ACTIVATOR) {
-                let endIndex = text.indexOf(CLASS_ACTIVATOR, i + 1);
+            } else if (text[i] == this.CLASS_ACTIVATOR) {
+                let endIndex = text.indexOf(this.CLASS_ACTIVATOR, i + 1);
                 let contents = text.substring(i + 1, (endIndex == -1) ? undefined : endIndex);
                 this.modifyOutputClasses(contents);
                 i = (endIndex == -1) ? text.length - 1 : endIndex;
@@ -238,7 +238,7 @@ class PseudoConsole {
      * @param {'last' | Number} startingColumn Index of the column to start printing at.
      * @returns {Promise<{ start: ConsoleCoordinate, end: ConsoleCoordinate }>} The coordinates where the function started and stopped printing.
      */
-    static async printByLine(text, millisecondsBetween = MILLISECONDS_PER_LINE, startingLine = 'last', startingColumn = 'last') {
+    static async printByLine(text, millisecondsBetween = this.DEFAULT_MILLISECONDS_PER_LINE, startingLine = 'last', startingColumn = 'last') {
         let lines = this.lines();
         let lineIndex = (startingLine == 'last') ? lines.length - 1 : startingLine;
         let line = lines[lineIndex];
@@ -264,8 +264,8 @@ class PseudoConsole {
                 line = lines[lineIndex] || this.newLine();
                 columns = this.columns(line);
                 continue;
-            } else if (text[i] == CLASS_ACTIVATOR) {
-                let endIndex = text.indexOf(CLASS_ACTIVATOR, i + 1);
+            } else if (text[i] == this.CLASS_ACTIVATOR) {
+                let endIndex = text.indexOf(this.CLASS_ACTIVATOR, i + 1);
                 let contents = text.substring(i + 1, (endIndex == -1) ? undefined : endIndex);
                 this.modifyOutputClasses(contents);
                 i = (endIndex == -1) ? text.length - 1 : endIndex;
@@ -328,10 +328,10 @@ class PseudoConsole {
         
         let i = 0;
         while (i < text.length) {
-            if (text[i] == CLASS_ACTIVATOR) {
-                let endIndex = text.indexOf(CLASS_ACTIVATOR, i + 1);
+            if (text[i] == this.CLASS_ACTIVATOR) {
+                let endIndex = text.indexOf(this.CLASS_ACTIVATOR, i + 1);
                 if (endIndex == -1) {
-                    text += CLASS_ACTIVATOR;
+                    text += this.CLASS_ACTIVATOR;
                     i = text.length;
                 } else
                     i = endIndex + 1;
@@ -341,21 +341,21 @@ class PseudoConsole {
             } else {
                 let spaceIndex = text.indexOf(' ', i + 1);
                 let newLineIndex = text.indexOf('\n', i + 1);
-                let classIndex = text.indexOf(CLASS_ACTIVATOR, i + 1);
+                let classIndex = text.indexOf(this.CLASS_ACTIVATOR, i + 1);
                 let lastIndex = text.length;
 
                 let potentialEndIndices = [spaceIndex, newLineIndex, classIndex, lastIndex].filter(index => index != -1);
                 let wordEndIndex = Math.min(...potentialEndIndices);
 
                 let wordLength = wordEndIndex - i;
-                let wordFitsLineLength = lineCharCount + wordLength <= MAX_CHARS_PER_LINE;
-                let wordIsTooLong = wordLength > MAX_CHARS_PER_LINE;
+                let wordFitsLineLength = lineCharCount + wordLength <= this.MAX_CHARS_PER_LINE;
+                let wordIsTooLong = wordLength > this.MAX_CHARS_PER_LINE;
 
                 if (wordFitsLineLength) {
                     lineCharCount += wordLength;
                     i += wordLength;
                 } else if (wordIsTooLong) {
-                    wordLength = (MAX_CHARS_PER_LINE - lineCharCount);
+                    wordLength = (this.MAX_CHARS_PER_LINE - lineCharCount);
                     i += wordLength;
                     text = text.slice(0, i) + '\n' + text.slice(i);
                     lineCharCount = 0;
@@ -367,7 +367,7 @@ class PseudoConsole {
             }
         }
 
-        if (lineCharCount == MAX_CHARS_PER_LINE)
+        if (lineCharCount == this.MAX_CHARS_PER_LINE)
             text += '\n';
 
         return text;
@@ -406,7 +406,7 @@ class PseudoConsole {
 
         transformInput();
         this.consoleInput.type = 'text';
-        this.consoleInput.maxLength = MAX_CHARS_PER_LINE - coordinates.column;
+        this.consoleInput.maxLength = this.MAX_CHARS_PER_LINE - coordinates.column;
         this.consoleInput.size = this.consoleInput.maxLength;
         this.consoleInput.hidden = false;
         this.consoleInput.focus();
@@ -456,7 +456,7 @@ class PseudoConsole {
      * @returns {String} The font size.
      */
     static fontSize() {
-        return (this.pseudoConsole.offsetWidth * FONT_SIZE_PER_CONSOLE_WIDTH) + 'px';
+        return (this.pseudoConsole.offsetWidth * this.FONT_SIZE_PER_CONSOLE_WIDTH) + 'px';
     }
 
     /**

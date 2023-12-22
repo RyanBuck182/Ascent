@@ -1,5 +1,7 @@
 'use strict';
 
+const DEFAULT_WAIT_MILLISECONDS = 1000;
+
 /**
  * Waits for the specified number of milliseconds.
  * @param {Number} milliseconds Milliseconds to wait.
@@ -17,14 +19,14 @@ function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
  * @param {String} width The width the string should be set to.
  * @returns {String} The padded string.
  */
-function setWidth(text, justify = 'left', width = MAX_CHARS_PER_LINE) {
+function setWidth(text, justify = 'left', width = PseudoConsole.MAX_CHARS_PER_LINE) {
     let remainingWidth = width - text.length;
 
-    let classActivatorIndex = text.indexOf(CLASS_ACTIVATOR);
+    let classActivatorIndex = text.indexOf(PseudoConsole.CLASS_ACTIVATOR);
     while (classActivatorIndex != -1) {
-        let nextClassActivator = text.indexOf(CLASS_ACTIVATOR, classActivatorIndex + 1);
+        let nextClassActivator = text.indexOf(PseudoConsole.CLASS_ACTIVATOR, classActivatorIndex + 1);
         remainingWidth += nextClassActivator - classActivatorIndex + 1;
-        classActivatorIndex = text.indexOf(CLASS_ACTIVATOR, nextClassActivator + 1);
+        classActivatorIndex = text.indexOf(PseudoConsole.CLASS_ACTIVATOR, nextClassActivator + 1);
     }
 
     if (remainingWidth < 1)

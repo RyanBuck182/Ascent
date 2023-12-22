@@ -70,7 +70,7 @@ async function displayTitle() {
 
 /** Displays a divider to the screens. */
 async function displayDivider() {
-    await PseudoConsole.printByLine('-'.repeat(MAX_CHARS_PER_LINE));
+    await PseudoConsole.printByLine('-'.repeat(PseudoConsole.MAX_CHARS_PER_LINE));
 }
 
 /** Updates pseudo console font sizes. Runs when the page is resized. */
