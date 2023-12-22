@@ -135,13 +135,17 @@ class PseudoConsole {
     static newLine() {
         let line = document.createElement('div');
         line.className = 'consoleLine';
+        
         line.style.fontSize = this.fontSize();
+        window.addEventListener('resize', () => { line.style.fontSize = this.fontSize() });
+
         for (let i = 0; i < this.MAX_CHARS_PER_LINE; i++) {
             let char = document.createElement('span');
             char.textContent = ' ';
             line.appendChild(char);
         }
         line.column = 0;
+        
         this.pseudoConsole.appendChild(line);
         return line;
     }

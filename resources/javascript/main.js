@@ -27,6 +27,8 @@ async function stateMachine() {
     }
 }
 
+stateMachine();
+
 //------------------------------------------------------------------------------------------
 //--------------------------------------MAIN MENU-------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -72,25 +74,3 @@ async function displayTitle() {
 async function displayDivider() {
     await PseudoConsole.printByLine('-'.repeat(PseudoConsole.MAX_CHARS_PER_LINE));
 }
-
-/** Updates pseudo console font sizes. Runs when the page is resized. */
-function updateFontSizes() {
-    let fontSize = PseudoConsole.fontSize();
-
-    let lines = PseudoConsole.lines();
-    for (let i = 0; i < lines.length; i++)
-        lines[i].style.fontSize = fontSize;
-}
-
-//------------------------------------------------------------------------------------------
-//---------------------------------------EVENTS---------------------------------------------
-//------------------------------------------------------------------------------------------
-
-window.addEventListener('resize', updateFontSizes);
-
-//------------------------------------------------------------------------------------------
-//-----------------------------------INITIALIZATION-----------------------------------------
-//------------------------------------------------------------------------------------------
-
-updateFontSizes();
-stateMachine();
