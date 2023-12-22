@@ -16,7 +16,7 @@ function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
  * Pads a string with spaces.
  * @param {String} text The string to set the width of.
  * @param {'left' | 'center' | 'right'} justify How the string should be positioned.
- * @param {String} width The width the string should be set to.
+ * @param {Number} width The width the string should be set to.
  * @returns {String} The padded string.
  */
 function setWidth(text, justify = 'left', width = PseudoConsole.MAX_CHARS_PER_LINE) {
