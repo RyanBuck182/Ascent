@@ -45,10 +45,15 @@ async function mainMenu() {
     let coords = await PseudoConsole.printByChar('\n\nEnter something: ');
     let input = await PseudoConsole.getTextInput(coords.end);
     await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(500);
+    wait(200);
     await PseudoConsole.printByChar('\n\nPress enter to continue...');
     await PseudoConsole.waitForEnter();
     await PseudoConsole.printByChar('\nYou pressed enter!!!');
+    wait(200);
+    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5));
+    await PseudoConsole.printByLine('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5), 50);
+    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow-synchronous§synchronous rainbows§/§').repeat(5));
+    await PseudoConsole.printByLine('\n\n'+ setWidth('§text-rainbow-synchronous§♥§/§', 'center'));
 
     return 'quit';
 }

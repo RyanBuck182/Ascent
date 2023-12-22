@@ -14,6 +14,7 @@ class PseudoConsole {
     static DEFAULT_MILLISECONDS_PER_LINE = this.DEFAULT_MILLISECONDS_PER_CHAR * 20;
     static FONT_SIZE_PER_CONSOLE_WIDTH = 0.02;
     static CLASS_ACTIVATOR = '§';
+    static CLASS_RESETTER = '⌡';
 
     /** The pseudo console html element. */
     static pseudoConsole = document.getElementById('console');
@@ -36,8 +37,11 @@ class PseudoConsole {
             try {
                 PseudoCSSClass.LIST[this.#outputClassArray[i]].styleElement(element);
             }
-            catch {
-                console.warn('Invalid pseudo class name: ' + this.#outputClassArray[i]);
+            catch (error) {
+                if (PseudoCSSClass.LIST[this.#outputClassArray[i]] === undefined)
+                    console.warn('Invalid pseudo class name: ' + this.#outputClassArray[i]);
+                else
+                    console.error(error);
             }
         }
     }
@@ -82,8 +86,9 @@ class PseudoConsole {
                     }
                     j += className.length;
                 }
-            }
-            else
+            } else if (argument[0] == this.CLASS_RESETTER) {
+                this.removeAllOutputClasses();
+            } else
                 this.addOutputClass(argument);
         }
     }
