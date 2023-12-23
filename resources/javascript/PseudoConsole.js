@@ -14,6 +14,7 @@ class PseudoConsole {
     static DEFAULT_MILLISECONDS_PER_LINE = this.DEFAULT_MILLISECONDS_PER_CHAR * 20;
     static FONT_SIZE_PER_CONSOLE_WIDTH = 0.02;
     static CLASS_ACTIVATOR = '§';
+    static CLASS_REMOVER = '/';
     static CLASS_RESETTER = '⌡';
 
     /** The pseudo console html element. */
@@ -33,17 +34,8 @@ class PseudoConsole {
      * @param {Element} element 
      */
     static applyOutputClasses(element) {
-        for (let i = 0; i < this.#outputClassArray.length; i++) {
-            try {
-                PseudoCSSClass.LIST[this.#outputClassArray[i]].styleElement(element);
-            }
-            catch (error) {
-                if (PseudoCSSClass.LIST[this.#outputClassArray[i]] === undefined)
-                    console.warn('Invalid pseudo class name: ' + this.#outputClassArray[i]);
-                else
-                    console.error(error);
-            }
-        }
+        for (let i = 0; i < this.#outputClassArray.length; i++)
+            PseudoCSSClass.getClassFromId(this.#outputClassArray[i]).styleElement(element);
     }
 
     /**
@@ -64,16 +56,16 @@ class PseudoConsole {
 
         for (let i = 0; i < argumentList.length; i++) {
             let argument = argumentList[i];
-            if (argument[0] == '/') {
+            if (argument[0] == this.CLASS_REMOVER) {
                 let j = 0;
-                for (; j < argument.length && (argument[j + 1] == '/' || argument[j + 1] == undefined); j++)
+                for (; j < argument.length && (argument[j + 1] == this.CLASS_REMOVER || argument[j + 1] == undefined); j++)
                     this.removeLastOutputClass();
     
                 for(; j < argument.length; j++) {
-                    let classEnd = argument.indexOf('/', j + 1);
+                    let classEnd = argument.indexOf(this.CLASS_REMOVER, j + 1);
                     let className = '';
                     if (classEnd != -1) {
-                        if (argument[classEnd + 1] == '/' || argument[classEnd + 1] == undefined) {
+                        if (argument[classEnd + 1] == this.CLASS_REMOVER || argument[classEnd + 1] == undefined) {
                             className = argument.slice(j + 1, classEnd + 1);
                             this.removeSpecificOutputClass(className.slice(0, className.length - 1));
                         } else {
@@ -88,8 +80,9 @@ class PseudoConsole {
                 }
             } else if (argument[0] == this.CLASS_RESETTER) {
                 this.removeAllOutputClasses();
-            } else
+            } else {
                 this.addOutputClass(argument);
+            }
         }
     }
 
@@ -99,6 +92,13 @@ class PseudoConsole {
      */
     static addOutputClass(className) {
         this.#outputClassArray.push(className);
+        PseudoCSSClass.getClassFromId(className).onAddition();
+    }
+
+    /** Removes the last pseudo class from the list of output classes. */
+    static removeLastOutputClass() {
+        PseudoCSSClass.getClassFromId(this.#outputClassArray[this.#outputClassArray.length - 1]).onRemoval();
+        this.#outputClassArray.pop();
     }
 
     /** 
@@ -108,14 +108,10 @@ class PseudoConsole {
     static removeSpecificOutputClass(className) {
         let index = this.#outputClassArray.indexOf(className);
         while (index != -1) {
+            PseudoCSSClass.getClassFromId(className).onRemoval();
             this.#outputClassArray.splice(index, 1);
             index = this.#outputClassArray.indexOf(className);
         }
-    }
-
-    /** Removes the last pseudo class from the list of output classes. */
-    static removeLastOutputClass() {
-        this.#outputClassArray.pop();
     }
 
     /** 
@@ -124,13 +120,16 @@ class PseudoConsole {
      */
     static removeLastSpecificOutputClass(className) {
         let index = this.#outputClassArray.lastIndexOf(className);
-        if (index != -1)
+        if (index != -1) {
+            PseudoCSSClass.getClassFromId(className).onRemoval();
             this.#outputClassArray.splice(index, 1);
+        }
     }
 
     /** Removes every pseudo class from the list of output classes. */
     static removeAllOutputClasses() {
-        this.#outputClassArray = [];
+        while (this.#outputClassArray.length > 0)
+            this.removeLastOutputClass();
     }
 
     /**

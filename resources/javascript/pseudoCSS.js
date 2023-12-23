@@ -1,23 +1,58 @@
-new PseudoCSSClass('text-blue',
-    element => { element.style.color = 'rgb(0, 115, 255)'; }
-);
-new PseudoCSSClass('text-red',
-    element => { element.style.color = 'rgb(255, 0, 0)'; }
-);
-new PseudoCSSClass('text-bold',
-    element => { element.style.fontWeight = 'bold'; }
-);
-new PseudoCSSClass('background-blue',
-    element => { element.style.backgroundColor = 'rgb(0, 115, 255)'; }
-);
-new PseudoCSSClass('background-red',
-    element => { element.style.backgroundColor = 'rgb(255, 0, 0)'; }
-);
-new PseudoCSSClass('background-inherit',
-    element => { element.style.backgroundColor = 'inherit'; }
-);
-new PseudoCSSClass('text-rainbow',
-    element => {
+'use strict';
+
+//------------------------------------------------------------------------------------------
+//-----------------------------------------TEXT---------------------------------------------
+//------------------------------------------------------------------------------------------
+
+new PseudoCSSClass('text-bold', {
+    styleElement: element => { element.style.fontWeight = 'bold'; }
+});
+new PseudoCSSClass('text-italic', {
+    styleElement: element => { element.style.fontStyle = 'italic'; }
+});
+
+new PseudoCSSClass('text-red', {
+    styleElement: element => { element.style.color = 'rgb(255, 0, 0)'; }
+});
+new PseudoCSSClass('text-dark-green', {
+    styleElement: element => { element.style.color = 'rgb(0, 128, 0)'; }
+});
+new PseudoCSSClass('text-blue', {
+    styleElement: element => { element.style.color = 'rgb(0, 115, 255)'; }
+});
+new PseudoCSSClass('text-white', {
+    styleElement: element => { element.style.color = 'rgb(255, 255, 255)'; }
+});
+
+new PseudoCSSClass('text-candy-cane', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('text-candy-cane');
+        if (thisClass.cycle % thisClass.cycles === 0)
+            PseudoCSSClass.getClassFromId('text-red').styleElement(element);
+        else
+            PseudoCSSClass.getClassFromId('text-white').styleElement(element);
+        thisClass.cycle++;
+    },
+    extraProperties: { cycle: 0, cycles: 2 }
+});
+PseudoCSSClass.createCyclePositioners('text-candy-cane');
+
+new PseudoCSSClass('text-christmas', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('text-christmas');
+        if (thisClass.cycle % thisClass.cycles === 0)
+            PseudoCSSClass.getClassFromId('text-red').styleElement(element);
+        else
+            PseudoCSSClass.getClassFromId('text-dark-green').styleElement(element);
+        thisClass.cycle++;
+    },
+    extraProperties: { cycle: 0, cycles: 2 }
+});
+PseudoCSSClass.createCyclePositioners('text-christmas');
+
+new PseudoCSSClass('text-rainbow', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('text-rainbow');
         let rainbowText = [
             { offset: (0/12), color: 'rgb(255, 0, 0)'},
             { offset: (1/12), color: 'rgb(255, 155, 0)'},
@@ -30,19 +65,80 @@ new PseudoCSSClass('text-rainbow',
         ];
 
         let animation = element.animate(rainbowText, {
-            duration: 3000,
+            duration: thisClass.animationDuration,
             easing: 'ease-in-out',
             iterations: Infinity,
-            id: 'text-rainbow'
+            id: thisClass.identifier
         });
-    }
-);
-new PseudoCSSClass('text-rainbow-synchronous',
-    element => {
-        PseudoCSSClass.LIST['text-rainbow'].styleElement(element);
+    },
+    extraProperties: { animationDuration: 3000 }
+});
+PseudoCSSClass.createSynchronousAnimation('text-rainbow');
 
-        let animationStart = PseudoCSSClass.LIST['text-rainbow-synchronous'].animationStart || Date.now();
-        let animation = element.getAnimations().find(anim => anim.id === 'text-rainbow');
-        animation.startTime = animationStart % 3000;
-    }, { animationStart: Date.now() }
-);
+//------------------------------------------------------------------------------------------
+//---------------------------------------LINE TEXT------------------------------------------
+//------------------------------------------------------------------------------------------
+
+new PseudoCSSClass('line-text-candy-cane', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('line-text-candy-cane');
+        if (element.parentElement !== thisClass.line) {
+            thisClass.line = element.parentElement;
+            thisClass.cycle++;
+        } else {
+            if (thisClass.cycle % thisClass.cycles === 0)
+                PseudoCSSClass.getClassFromId('text-red').styleElement(element);
+            else
+                PseudoCSSClass.getClassFromId('text-white').styleElement(element);
+        }
+    },
+    extraProperties: { cycle: 0, cycles: 2, line: undefined }
+});
+PseudoCSSClass.createCyclePositioners('line-text-candy-cane');
+
+new PseudoCSSClass('line-text-christmas', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('line-text-christmas');
+        if (element.parentElement !== thisClass.line) {
+            thisClass.line = element.parentElement;
+            thisClass.cycle++;
+        } else {
+            if (thisClass.cycle % thisClass.cycles === 0)
+                PseudoCSSClass.getClassFromId('text-red').styleElement(element);
+            else
+                PseudoCSSClass.getClassFromId('text-dark-green').styleElement(element);
+        }
+    },
+    extraProperties: { cycle: 0, cycles: 2, line: undefined }
+});
+PseudoCSSClass.createCyclePositioners('line-text-christmas');
+
+//------------------------------------------------------------------------------------------
+//--------------------------------------BACKGROUNDS-----------------------------------------
+//------------------------------------------------------------------------------------------
+
+new PseudoCSSClass('background-red', {
+    styleElement: element => { element.style.backgroundColor = 'rgb(255, 0, 0)'; }
+});
+new PseudoCSSClass('background-blue', {
+    styleElement: element => { element.style.backgroundColor = 'rgb(0, 115, 255)'; }
+});
+new PseudoCSSClass('background-white', {
+    styleElement: element => { element.style.backgroundColor = 'rgb(0, 115, 255)'; }
+});
+new PseudoCSSClass('background-inherit', {
+    styleElement: element => { element.style.backgroundColor = 'inherit'; }
+});
+
+new PseudoCSSClass('background-candy-cane', {
+    styleElement: element => {
+        let thisClass = PseudoCSSClass.getClassFromId('background-candy-cane');
+        if (thisClass.cycle % thisClass.cycles === 0)
+            PseudoCSSClass.getClassFromId('background-red').styleElement(element);
+        else
+            PseudoCSSClass.getClassFromId('background-white').styleElement(element);
+        thisClass.cycle++;
+    },
+    extraProperties: { cycle: 0, cycles: 2 }
+});
+PseudoCSSClass.createCyclePositioners('background-candy-cane');

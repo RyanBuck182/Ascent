@@ -52,8 +52,8 @@ async function mainMenu() {
     wait(200);
     await PseudoConsole.printByChar('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5));
     await PseudoConsole.printByLine('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5), 50);
-    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow-synchronous§synchronous rainbows§/§').repeat(5));
-    await PseudoConsole.printByLine('\n\n'+ setWidth('§text-rainbow-synchronous§♥§/§', 'center'));
+    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow-sync§synchronous rainbows§/§').repeat(5));
+    await PseudoConsole.printByChar('\n\n' + '§text-candy-cane§CANDYCANE§/§');
 
     return 'quit';
 }
@@ -64,6 +64,7 @@ async function mainMenu() {
 
 /** Displays the title image to the screen. */
 async function displayTitle() {
+    await PseudoConsole.printInstant('§line-text-christmas line-text-christmas-0 / text-bold§');
     await PseudoConsole.printByLine(
         setWidth("  ##      ## ##    ## ##   ### ###  ###  ##  #### ##", 'center') + '\n' +
         setWidth(" ## ##   ##   ##  ##   ##   ##  ##    ## ##  # ## ##", 'center') + '\n' +
@@ -73,9 +74,10 @@ async function displayTitle() {
         setWidth(" ##  ##  ##   ##  ##   ##   ##  ##   ##  ##    ##   ", 'center') + '\n' +
         setWidth("###  ##   ## ##    ## ##   ### ###  ###  ##   ####  ", 'center')
     );
+    await PseudoConsole.printInstant('§//§');
 }
 
 /** Displays a divider to the screens. */
 async function displayDivider() {
-    await PseudoConsole.printByLine('-'.repeat(PseudoConsole.MAX_CHARS_PER_LINE));
+    await PseudoConsole.printByLine('§text-christmas§' + '═'.repeat(PseudoConsole.MAX_CHARS_PER_LINE) + '§/§');
 }
