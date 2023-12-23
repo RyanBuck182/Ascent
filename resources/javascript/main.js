@@ -39,6 +39,9 @@ stateMachine();
  */
 async function mainMenu() {
     PseudoConsole.newLine();
+
+    PseudoConsole.printInstant('\n'.repeat(50));
+
     await displayTitle();
     await displayDivider();
 
