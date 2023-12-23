@@ -66,7 +66,7 @@ class PseudoCSSClass {
      * onRemoval: () => void | undefined,
      * onInitialize: (thisClass: PseudoCSSClass) => void | undefined,
      * extraProperties: {} | undefined
-     * }} data Data pertaining to the pseudo css class.
+     * } | undefined} data Data pertaining to the pseudo css class.
      */
     constructor(identifier, data = {}) {
         /**
