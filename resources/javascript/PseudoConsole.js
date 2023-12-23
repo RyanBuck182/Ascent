@@ -152,6 +152,7 @@ class PseudoConsole {
         line.column = 0;
         
         this.pseudoConsole.appendChild(line);
+        window.scrollTo(0, document.body.offsetHeight);
         return line;
     }
     
@@ -385,9 +386,16 @@ class PseudoConsole {
     /**
      * Gets text input from the user.
      * @param {ConsoleCoordinate} coordinates The coordinates to start the input at.
+     * @param {{
+     * inputType: 'text' | 'integer' | undefined,
+     * minLength: Number | undefined,
+     * maxLength: Number | undefined,
+     * minValue: Number | undefined,
+     * maxValue: Number | undefined
+     * } | undefined} constraints Constraints on the user input.
      * @returns {Promise<String>} The text input.
      */
-    static async getTextInput(coordinates) {
+    static async getUserInput(coordinates, constraints = {}) {
         let line = this.lines()[coordinates.line];
         let column = this.columns(line)[coordinates.column];
         let columnRect = column.getBoundingClientRect();
@@ -421,19 +429,67 @@ class PseudoConsole {
         this.consoleInput.hidden = false;
         this.consoleInput.focus();
 
-        await this.#waitForInput();
+        //Input
+        let input;
+        let validInput;
+        do {
+            await this.#waitForInput();
+            input = this.consoleInput.value; 
+            this.consoleInput.value = '';
 
+            validInput = false;
+            if (constraints.inputType === 'integer') {
+                input = input.trim();
+                if (!Number.isInteger(Number(input)))
+                    this.consoleInput.placeholder = 'Not An Integer';
+                else if (input < constraints.minValue)
+                    this.consoleInput.placeholder = 'Too Small';
+                else if (input > constraints.maxValue)
+                    this.consoleInput.placeholder = 'Too Large';
+                else
+                    validInput = true;
+            } else {
+                if (input.length < constraints.minLength || input.length < 1)
+                    this.consoleInput.placeholder = 'Too Short';
+                else if (input.length > constraints.maxLength)
+                    this.consoleInput.placeholder = 'Too Long';
+                else
+                    validInput = true;
+            }
+        } while (!validInput);
+        
         //Post input
+        this.consoleInput.placeholder = '';
+        this.printInstant(input, coordinates.line, coordinates.column);
         this.consoleInput.hidden = true;
 
         window.removeEventListener('resize', transformInput);
         document.removeEventListener('scroll', transformInput);
         this.consoleInput.removeEventListener('focusout', focusOnType);
 
-        let input = this.consoleInput.value; 
-        this.consoleInput.value = '';
-        this.printInstant(input, coordinates.line, coordinates.column);
         return new Promise (resolve => resolve(input));
+    }
+
+    /**
+     * Gets text input from the user.
+     * @param {ConsoleCoordinate} coordinates The coordinates to start the input at.
+     * @param {Number | undefined} minLength The minimum length of the input.
+     * @param {Number | undefined} maxLength The maximum length of the input.
+     * @returns {Promise<String>} The text input.
+     */
+    static async getTextInput(coordinates, minLength = undefined, maxLength = undefined) {
+        return await this.getUserInput(coordinates, { inputType: 'text', minLength: minLength, maxLength: maxLength});
+    }
+
+    /**
+     * Gets integer input from the user.
+     * @param {ConsoleCoordinate} coordinates The coordinates to start the input at.
+     * @param {Number | undefined} minValue The minimum value of the integer.
+     * @param {Number | undefined} maxValue The maximum value of the integer.
+     * @returns {Promise<Integer>} The integer input.
+     */
+    static async getIntegerInput(coordinates, minValue = undefined, maxValue = undefined) {
+        return await this.getUserInput(coordinates, { inputType: 'integer', minValue: minValue, maxValue: maxValue});
     }
 
     /** Waits until the user presses enter. */
