@@ -27,7 +27,7 @@ body {
 }
 
 #consoleInput {
-    position: absolute;
+    position: fixed;
     background: inherit;
     border: none;
     color: inherit;

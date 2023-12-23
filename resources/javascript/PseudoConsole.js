@@ -146,6 +146,7 @@ class PseudoConsole {
         for (let i = 0; i < this.MAX_CHARS_PER_LINE; i++) {
             let char = document.createElement('span');
             char.textContent = ' ';
+            char.classList.add('consoleColumn');
             line.appendChild(char);
         }
         line.column = 0;
@@ -410,6 +411,7 @@ class PseudoConsole {
 
         //Pre input
         window.addEventListener('resize', transformInput);
+        document.addEventListener('scroll', transformInput);
         this.consoleInput.addEventListener('focusout', focusOnType);
 
         transformInput();
@@ -425,6 +427,7 @@ class PseudoConsole {
         this.consoleInput.hidden = true;
 
         window.removeEventListener('resize', transformInput);
+        document.removeEventListener('scroll', transformInput);
         this.consoleInput.removeEventListener('focusout', focusOnType);
 
         let input = this.consoleInput.value; 
@@ -481,6 +484,6 @@ class PseudoConsole {
      * @returns {NodeListOf<ChildNode>} The columns of the line. 
      */
     static columns(line) {
-        return line.children;
+        return line.querySelectorAll('.consoleColumn');
     }
 }
