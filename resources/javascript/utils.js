@@ -17,9 +17,10 @@ function wait(milliseconds = DEFAULT_WAIT_MILLISECONDS) {
  * @param {String} text The string to set the width of.
  * @param {'left' | 'center' | 'right'} justify How the string should be positioned.
  * @param {Number} width The width the string should be set to.
+ * @param {String} padCharacter The character to pad the string with.
  * @returns {String} The padded string.
  */
-function setWidth(text, justify = 'left', width = PseudoConsole.MAX_CHARS_PER_LINE) {
+function setWidth(text, justify = 'left', width = PseudoConsole.MAX_CHARS_PER_LINE, padCharacter = ' ') {
     let remainingWidth = width - text.length;
 
     let classActivatorIndex = text.indexOf(PseudoConsole.CLASS_ACTIVATOR);
@@ -34,10 +35,10 @@ function setWidth(text, justify = 'left', width = PseudoConsole.MAX_CHARS_PER_LI
     
     switch (justify) {
         default:
-            return ' '.repeat(remainingWidth) + text;
+            return padCharacter.repeat(remainingWidth) + text;
         case 'right':
-            return text + ' '.repeat(remainingWidth);
+            return text + padCharacter.repeat(remainingWidth);
         case 'center':
-            return ' '.repeat(Math.ceil(remainingWidth / 2)) + text + ' '.repeat(Math.floor(remainingWidth / 2));
+            return padCharacter.repeat(Math.ceil(remainingWidth / 2)) + text + padCharacter.repeat(Math.floor(remainingWidth / 2));
     }
 }
