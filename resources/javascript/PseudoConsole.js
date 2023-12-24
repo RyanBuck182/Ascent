@@ -7,7 +7,7 @@
  * @property {Number} column A column on the pseudo console.
  */
 
-/** Functions associated with the pseudoconsole. Everything is static. */
+/** Functions associated with the pseudoconsole. Solely comprised of static members. */
 class PseudoConsole {
     static MAX_CHARS_PER_LINE = 90;
     static DEFAULT_MILLISECONDS_PER_CHAR = 20;
