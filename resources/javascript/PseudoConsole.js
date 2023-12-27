@@ -155,6 +155,39 @@ class PseudoConsole {
         window.scrollTo(0, document.body.offsetHeight);
         return line;
     }
+
+    /**
+     * Creates an invisible new line. makeVisible(invisibleNewLine) to make the line visible.
+     * @returns {Element} The created new line.
+     */
+    static invisibleNewLine() {
+        let line = document.createElement('div');
+        line.className = 'consoleLine';
+        
+        line.style.fontSize = this.fontSize();
+        window.addEventListener('resize', () => { line.style.fontSize = this.fontSize() });
+
+        for (let i = 0; i < this.MAX_CHARS_PER_LINE; i++) {
+            let char = document.createElement('span');
+            char.textContent = ' ';
+            char.classList.add('consoleColumn');
+            line.appendChild(char);
+        }
+        line.column = 0;
+
+        line.hidden = true;
+        this.pseudoConsole.appendChild(line);
+        window.scrollTo(0, document.body.offsetHeight);
+        return line;
+    }
+
+    /**
+     * Makes an invisible new line visible.
+     * @param {Element} invisibleNewLine The line to make visible. 
+     */
+    static makeVisible(invisibleNewLine) {
+        invisibleNewLine.hidden = false;
+    }
     
     /**
      * Instantly prints a string to the pseudo console.
@@ -166,7 +199,7 @@ class PseudoConsole {
     static printInstant(text, startingLine = 'last', startingColumn = 'last') {
         let lines = this.lines();
         let lineIndex = (startingLine == 'last') ? lines.length - 1 : startingLine;
-        let line = lines[lineIndex];
+        let line = lines[lineIndex] || this.newLine();
         let columns = this.columns(line);
 
         line.column = (startingColumn == 'last') ? line.column : startingColumn;
@@ -208,7 +241,7 @@ class PseudoConsole {
     static async printByChar(text, millisecondsBetween = this.DEFAULT_MILLISECONDS_PER_CHAR, startingLine = 'last', startingColumn = 'last') {
         let lines = this.lines();
         let lineIndex = (startingLine == 'last') ? lines.length - 1 : startingLine;
-        let line = lines[lineIndex];
+        let line = lines[lineIndex] || this.newLine();
         let columns = this.columns(line);
 
         line.column = (startingColumn == 'last') ? line.column : startingColumn;
@@ -218,8 +251,8 @@ class PseudoConsole {
 
         for (let i = 0; i < text.length; i++) {
             if (text[i] == '\n') {
-                lineIndex++;
-                line = lines[lineIndex] || this.newLine();
+                await wait(millisecondsBetween);
+                line = lines[++lineIndex] || this.newLine();
                 columns = this.columns(line);
                 continue;
             } else if (text[i] == this.CLASS_ACTIVATOR) {
@@ -251,7 +284,7 @@ class PseudoConsole {
     static async printByLine(text, millisecondsBetween = this.DEFAULT_MILLISECONDS_PER_LINE, startingLine = 'last', startingColumn = 'last') {
         let lines = this.lines();
         let lineIndex = (startingLine == 'last') ? lines.length - 1 : startingLine;
-        let line = lines[lineIndex];
+        let line = lines[lineIndex] || this.invisibleNewLine();
         let columns = this.columns(line);
 
         line.column = (startingColumn == 'last') ? line.column : startingColumn;
@@ -260,18 +293,19 @@ class PseudoConsole {
         let startCoords = { line: lineIndex, column: line.column };
 
         let lineText = '';
-        async function printLine() {
+
+        let printLine = async() => {
             await wait(millisecondsBetween);
             for (let j = lineText.length - 1; j >= 0; j--)
                 columns[line.column - 1 - j].textContent = lineText[lineText.length - 1 - j];
+            this.makeVisible(line);           
         }
 
         for (let i = 0; i < text.length; i++) {
             if (text[i] == '\n') {
                 await printLine();
                 lineText = '';
-                lineIndex++;
-                line = lines[lineIndex] || this.newLine();
+                line = lines[++lineIndex] || this.invisibleNewLine();
                 columns = this.columns(line);
                 continue;
             } else if (text[i] == this.CLASS_ACTIVATOR) {
@@ -286,9 +320,11 @@ class PseudoConsole {
                 line.column++;
             }
         }
-
+        
         if (text[text.length - 1] != '\n')
             await printLine();
+        else
+            this.makeVisible(line);
 
         let endCoords = { line: lineIndex, column: line.column };
         return new Promise (resolve => resolve({ start: startCoords, end: endCoords }));
@@ -376,9 +412,6 @@ class PseudoConsole {
                 }
             }
         }
-
-        if (lineCharCount == this.MAX_CHARS_PER_LINE)
-            text += '\n';
 
         return text;
     }

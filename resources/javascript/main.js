@@ -38,8 +38,6 @@ stateMachine();
  * @returns {State} The game state.
  */
 async function mainMenu() {
-    PseudoConsole.newLine();
-
     PseudoConsole.printInstant('\n'.repeat(50));
 
     await displayTitle();
@@ -103,7 +101,7 @@ async function displayTitle() {
         setWidth(" ##  ##   #####   ##        ## ##    ## ##     ##   ", 'center') + '\n' +
         setWidth(" ## ###      ###  ##        ##       ##  ##    ##   ", 'center') + '\n' +
         setWidth(" ##  ##  ##   ##  ##   ##   ##  ##   ##  ##    ##   ", 'center') + '\n' +
-        setWidth("###  ##   ## ##    ## ##   ### ###  ###  ##   ####  ", 'center')
+        setWidth("###  ##   ## ##    ## ##   ### ###  ###  ##   ####  ", 'center') + '\n'
     );
     await PseudoConsole.printInstant('§//§');
 }
