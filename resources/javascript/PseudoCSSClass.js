@@ -32,7 +32,7 @@ class PseudoCSSClass {
         let cycleCount = cycleClass.cycles;
         for (let i = 0; i < cycleCount; i++) {
             new PseudoCSSClass(cycleIdentifier + '-' + i, {
-                onAddition: () => { PseudoCSSClass.getClassFromId(cycleIdentifier).cycle = i; }
+                onAddition: (self) => { cycleClass.cycle = i; }
             });
         }
     }
@@ -44,9 +44,8 @@ class PseudoCSSClass {
      */
     static createSynchronousAnimation(animIdentifier, syncIdentifier = animIdentifier + '-sync') {
         new PseudoCSSClass(syncIdentifier, {
-            styleElement: element => {
+            styleElement: (syncClass, element) => {
                 let baseClass = PseudoCSSClass.getClassFromId(animIdentifier);
-                let syncClass = PseudoCSSClass.getClassFromId(syncIdentifier);
 
                 baseClass.styleElement(element);
                 
@@ -61,47 +60,39 @@ class PseudoCSSClass {
      * Creates a PseudoCSSClass.
      * @param {String} identifier The name of the class.
      * @param {{ 
-     * styleElement: (element: Element) => void | undefined, 
-     * onAddition: () => void | undefined,
-     * onRemoval: () => void | undefined,
-     * onInitialize: (thisClass: PseudoCSSClass) => void | undefined,
+     * styleElement: (self: PseudoCSSClass, element: Element) => void | undefined, 
+     * onAddition: (self: PseudoCSSClass) => void | undefined,
+     * onRemoval: (self: PseudoCSSClass) => void | undefined,
+     * onInitialize: (self: PseudoCSSClass) => void | undefined,
      * extraProperties: {} | undefined
      * } | undefined} data Data pertaining to the pseudo css class.
      */
     constructor(identifier, data = {}) {
-        /**
-         * The pseudo class identifier.
-         * @type {String}
-         */
+        /** The pseudo class identifier. */
         this.identifier = identifier;
         PseudoCSSClass.#pseudoCSSClassList[identifier] = this;
 
-        /**
-         * Styles an html element.
-         * @type {(element: Element) => void}
-         */
-        this.styleElement = data.styleElement || (() => {});
+        if (data.styleElement)
+            this.styleElement = (element) => { data.styleElement(this, element) };
 
-        /**
-         * A function to be performed when the pseudo class is added.
-         * @type {() => void}
-         */
-        this.onAddition = data.onAddition || (() => {});
+        if (data.onAddition)
+            this.onAddition = () => { data.onAddition(this) };
 
-        /**
-         * A function to be performed when the pseudo class is removed.
-         * @type {() => void}
-         */
-        this.onRemoval = data.onRemoval || (() => {});
+        if (data.onRemoval)
+            this.onRemoval = () => { data.onRemoval(this) };
 
-        //Adds every property from extraProperties onto the PseudoCSSClass
-        if (data.extraProperties) {
-            let properties = Object.getOwnPropertyNames(data.extraProperties);
-            for (let i = 0; i < properties.length; i++)
-                this[properties[i]] = data.extraProperties[properties[i]];
-        }
+        Object.assign(this, data.extraProperties);
 
         if (data.onInitialize)
             data.onInitialize(this);
     }
+
+    /** Styles an html element. */
+    styleElement = () => {};
+
+    /** A function to be performed when the pseudo class is added. */
+    onAddition = () => {};
+
+    /** A function to be performed when the pseudo class is removed. */
+    onRemoval = () => {};
 }
