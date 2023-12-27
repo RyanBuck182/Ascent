@@ -40,47 +40,62 @@ class Enemy extends Combatant {
     }
 
     /**
-     * Defines an enemy to be used for combat.
+     * Creates an instance of a defined enemy.
+     * @param {String} identifier The identifier of the enemy to create an instance of.
+     * @param {Object | undefined} modifiedProperties Properties of the enemy to overwrite for this instance.
+     * @returns {Enemy} An instance of a defined enemy.
+     */
+    static createInstance(identifier, modifiedProperties) {
+        let instance = new Object();
+        Object.assign(instance, Enemy.#enemyList[identifier], modifiedProperties);
+        return instance;
+    }
+
+    /**
+     * Defines an enemy.
      * @param {{
      * name: String,
      * identifier: String,
      * room: Room | undefined,
-     * health: Number,
      * maxHealth: Number,
+     * health: Number | undefined,
      * onCombatStart: (self: Combatant) => void | undefined, 
      * onRoundStart: (self: Combatant) => void | undefined, 
      * onRoundEnd: (self: Combatant) => void | undefined, 
      * doTurn: (self: Combatant) => void | undefined,
-     * onHeal: (self: Combatant) => void | undefined,
-     * onTakeDamage: (self: Combatant) => void | undefined,
+     * onHeal: (self: Combatant, amount: Number) => void | undefined,
+     * onTakeDamage: (self: Combatant, amount: Number) => void | undefined,
      * onDeath: (self: Combatant) => void | undefined,
      * extraProperties: Object | undefined,
-     * takeHeal: (self: Combatant) => void | undefined,
-     * takeDamage: (self: Combatant) => void | undefined,
+     * takeHeal: (self: Combatant, amount: Number) => void | undefined,
+     * takeDamage: (self: Combatant, amount: Number) => void | undefined,
      * die: (self: Combatant) => void | undefined,
      * extraProperties: {} | undefined,
      * generable: Boolean,
      * difficulty: Number
      * }} data Data associated with the enemy.
      */
-    static defineEnemy(data) {
-        let enemy = super(data);
+    constructor(data) {
+        super(data);
         
-        enemy.generable = data.generable;
-        enemy.difficulty = data.difficulty;
+        /** Whether the enemy can be generated for random encounters. */
+        this.generable = data.generable;
+        
+        /** The difficulty of the enemy. */
+        this.difficulty = data.difficulty;
 
-        this.#enemyList[data.identifier] = enemy;
+        Enemy.#enemyList[data.identifier] = this;
 
-        if (enemy.generable) {
+        if (this.generable) {
             let insertionPoint = -1;
 
             let lowerBound = 0;
-            let upperBound = this.#generableEnemyList.length - 1;
+            let upperBound = Enemy.#generableEnemyList.length - 1;
             while (lowerBound <= upperBound) {
                 let midPoint = Math.floor((upperBound + lowerBound) / 2);
-                if (enemy.difficulty > this.#generableEnemyList[midPoint].difficulty)
+                if (this.difficulty > Enemy.#generableEnemyList[midPoint].difficulty)
                     lowerBound = midPoint + 1;
-                else if (enemy.difficulty < this.#generableEnemyList[midPoint].difficulty)
+                else if (this.difficulty < Enemy.#generableEnemyList[midPoint].difficulty)
                     upperBound = midPoint - 1;
                 else
                     insertionPoint = midPoint;
@@ -88,32 +103,9 @@ class Enemy extends Combatant {
             if (insertionPoint == -1)
                 insertionPoint = lowerBound;
 
-            this.#generableEnemyList.splice(insertionPoint, 0, enemy);
+            Enemy.#generableEnemyList.splice(insertionPoint, 0, this);
         }
+
+        Object.freeze(this);
     }
-
-    /**
-     * Creates an enemy from an instance.
-     * @param {String} identifier The identifier of enemy to create an instance of.
-     * @param {Object | undefined} modifiedProperties Properties of the enemy to overwrite for this instance.
-     */
-    constructor(identifier, modifiedProperties) {
-        this = Enemy.#enemyList[identifier];
-        
-        let modifiedPropertyNames = Object.getOwnPropertyNames(modifiedProperties);
-        for (let i = 0; i < modifiedPropertyNames.length; i++)
-            this[modifiedPropertyNames[i]] = modifiedProperties[modifiedPropertyNames[i]];
-    }
-
-    /** 
-     * Whether the enemy can be generated for random encounters.
-     * @type {Boolean}
-     */
-    generable;
-
-    /** 
-     * The difficulty of the enemy.
-     * @type {Number}
-     */
-    difficulty;
 }

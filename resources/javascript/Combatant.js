@@ -8,18 +8,18 @@ class Combatant {
      * name: String,
      * identifier: String,
      * room: Room | undefined,
-     * health: Number,
      * maxHealth: Number,
+     * health: Number | undefined,
      * onCombatStart: (self: Combatant) => void | undefined, 
      * onRoundStart: (self: Combatant) => void | undefined, 
      * onRoundEnd: (self: Combatant) => void | undefined, 
      * doTurn: (self: Combatant) => void | undefined,
-     * onHeal: (self: Combatant) => void | undefined,
-     * onTakeDamage: (self: Combatant) => void | undefined,
+     * onHeal: (self: Combatant, amount: Number) => void | undefined,
+     * onTakeDamage: (self: Combatant, amount: Number) => void | undefined,
      * onDeath: (self: Combatant) => void | undefined,
      * extraProperties: Object | undefined,
-     * takeHeal: (self: Combatant) => void | undefined,
-     * takeDamage: (self: Combatant) => void | undefined,
+     * takeHeal: (self: Combatant, amount: Number) => void | undefined,
+     * takeDamage: (self: Combatant, amount: Number) => void | undefined,
      * die: (self: Combatant) => void | undefined
      * }} data Data associated with the combatant.
      */
@@ -33,11 +33,11 @@ class Combatant {
         /** The room the combatant is in. */
         this.room = data.room;
 
-        /** The combatant's current health. */
-        this.health = data.health;
-
         /** The combatant's max health. */
         this.maxHealth = data.maxHealth;
+
+        /** The combatant's current health. */
+        this.health = data.health || this.maxHealth;
 
         if (data.onCombatStart)
             this.onCombatStart = () => { data.onCombatStart(this); };
@@ -65,44 +65,56 @@ class Combatant {
             this[extraPropertyNames[i]] = data.extraProperties[extraPropertyNames[i]];
 
         if (data.takeHeal)
-            this.takeHeal = () => { data.takeHeal(this); };
+            this.takeHeal = (amount) => { data.takeHeal(this, amount); };
 
         if (data.takeDamage)
-            this.takeDamage = () => { data.takeDamage(this); };
+            this.takeDamage = (amount) => { data.takeDamage(this, amount); };
 
         if (data.die)
             this.die = () => { data.die(this); };
     }
 
     /** Runs when combat starts. */
-    onCombatStart() {}
+    onCombatStart = () => {};
 
     /** The combatant's actions on it's turn. If this is undefined, the combatant does nothing on it's turn. */
-    doTurn() {}
+    doTurn = () => {};
 
     /** Runs when the round starts. */
-    onRoundStart() {}
+    onRoundStart = () => {};
 
     /** Runs when the round ends. */
-    onRoundEnd() {}
+    onRoundEnd = () => {};
 
-    /** Heals the combatant. */
+    /** 
+     * Heals the combatant.
+     * @param {Number} amount The amount to heal the combatant by.
+     */
     takeHeal(amount) {
-        //heal
+        this.health += amount;
+        if (this.health > this.maxHealth)
+            this.health = this.maxHealth;
 
-        this.onHeal(this);
+        this.onHeal(this, amount);
     }
 
-    /** Deals damage to the combatant. */
-    takeDamage(damage, trueDamage = 0) {
-        //damage calculations
-
-        this.onTakeDamage(this);
+    /**
+     * Deals damage to the combatant.
+     * @param {Number} amount The amount to damage the combatant by.
+     */
+    takeDamage(amount) {
+        this.health -= amount;
+        
+        this.onTakeDamage(this, amount);
+        
+        if (this.health <= 0)
+            this.die()
     }
 
     /** Kills the combatant. */
     die() {
-        //death stuff
+        //fade out animation?
+        //remove from room?
 
         this.onDeath(this);
     }
