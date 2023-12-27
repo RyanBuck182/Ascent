@@ -5,17 +5,22 @@ class Combatant {
     /**
      * Creates a new combatant.
      * @param {{
-     *            name: String,
-     *      identifier: String,
-     *            room: Room,
-     *          health: Number,
-     *       maxHealth: Number,
-     *   onCombatStart: (self: Combatant) => void | undefined, 
-     *          onTurn: (self: Combatant) => void | undefined,
-     *          onHeal: (self: Combatant) => void | undefined,
-     *    onTakeDamage: (self: Combatant) => void | undefined,
-     *         onDeath: (self: Combatant) => void | undefined,
-     * extraProperties: Object | undefined
+     * name: String,
+     * identifier: String,
+     * room: Room | undefined,
+     * health: Number,
+     * maxHealth: Number,
+     * onCombatStart: (self: Combatant) => void | undefined, 
+     * onRoundStart: (self: Combatant) => void | undefined, 
+     * onRoundEnd: (self: Combatant) => void | undefined, 
+     * doTurn: (self: Combatant) => void | undefined,
+     * onHeal: (self: Combatant) => void | undefined,
+     * onTakeDamage: (self: Combatant) => void | undefined,
+     * onDeath: (self: Combatant) => void | undefined,
+     * extraProperties: Object | undefined,
+     * takeHeal: (self: Combatant) => void | undefined,
+     * takeDamage: (self: Combatant) => void | undefined,
+     * die: (self: Combatant) => void | undefined
      * }} data Data associated with the combatant.
      */
     constructor(data) {
@@ -34,48 +39,68 @@ class Combatant {
         /** The combatant's max health. */
         this.maxHealth = data.maxHealth;
 
-        /** Runs after combat starts. */
-        this.onCombatStart = data.onCombatStart || (() => {});
+        if (data.onCombatStart)
+            this.onCombatStart = () => { data.onCombatStart(this); };
     
-        /** The combatant's actions on it's turn. If this is undefined, the combatant does nothing on it's turn. */
-        this.onTurn = data.onTurn || (() => {});
+        if (data.onRoundStart)
+            this.onRoundStart = () => { data.onRoundStart(this); };
 
-        /** Runs after the combatant heals. */
+        if (data.onRoundEnd)
+            this.onRoundEnd = () => { data.onRoundEnd(this); };
+
+        if (data.doTurn)
+            this.doTurn = () => { data.doTurn(this); };
+
+        /** Runs when the combatant heals. */
         this.onHeal = data.onHeal || (() => {});
 
-        /** Runs after the combatant takes damage. */
+        /** Runs when the combatant takes damage. */
         this.onTakeDamage = data.onTakeDamage || (() => {});
 
-        /** Runs after the combatant dies. */
+        /** Runs when the combatant dies. */
         this.onDeath = data.onDeath || (() => {});
 
         let extraPropertyNames = Object.getOwnPropertyNames(data.extraProperties || {});
         for (let i = 0; i < extraPropertyNames.length; i++)
             this[extraPropertyNames[i]] = data.extraProperties[extraPropertyNames[i]];
+
+        if (data.takeHeal)
+            this.takeHeal = () => { data.takeHeal(this); };
+
+        if (data.takeDamage)
+            this.takeDamage = () => { data.takeDamage(this); };
+
+        if (data.die)
+            this.die = () => { data.die(this); };
     }
 
-    startCombat() {
-        //start of combat stuff 
+    /** Runs when combat starts. */
+    onCombatStart() {}
 
-        this.onCombatStart(this);
-    }
+    /** The combatant's actions on it's turn. If this is undefined, the combatant does nothing on it's turn. */
+    doTurn() {}
 
-    doTurn() {
-        this.onTurn(this);
-    }
+    /** Runs when the round starts. */
+    onRoundStart() {}
 
-    heal(amount) {
+    /** Runs when the round ends. */
+    onRoundEnd() {}
+
+    /** Heals the combatant. */
+    takeHeal(amount) {
         //heal
 
         this.onHeal(this);
     }
 
-    damage(damage, trueDamage = 0) {
+    /** Deals damage to the combatant. */
+    takeDamage(damage, trueDamage = 0) {
         //damage calculations
 
         this.onTakeDamage(this);
     }
 
+    /** Kills the combatant. */
     die() {
         //death stuff
 
