@@ -15,9 +15,9 @@ async function stateMachine() {
     while (state != 'quit') {
         switch (state) {
             case 'start':
-                state = 'mainMenu';
+                state = 'main-menu'; //load mods
                 break;
-            case 'mainMenu':
+            case 'main-menu':
                 state = mainMenu();
                 break;
             default:
@@ -38,51 +38,43 @@ stateMachine();
  * @returns {State} The game state.
  */
 async function mainMenu() {
-    PseudoConsole.printInstant('\n'.repeat(50));
-
     await displayTitle();
     await displayDivider();
 
-    let coords = await PseudoConsole.printByChar('\n\nEnter something: ');
-    let input = await PseudoConsole.getUserInput(coords.end);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter something less than or equal to 10 characters: ');
-    input = await PseudoConsole.getTextInput(coords.end, undefined, 10);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter something greater than or equal to 5 characters: ');
-    input = await PseudoConsole.getTextInput(coords.end, 5);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter something between 5 and 10 characters: ');
-    input = await PseudoConsole.getTextInput(coords.end, 5, 10);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter an integer: ');
-    input = await PseudoConsole.getIntegerInput(coords.end);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter an integer less than or equal to 10: ');
-    input = await PseudoConsole.getIntegerInput(coords.end, undefined, 10);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter an integer greater than or equal to 5: ');
-    input = await PseudoConsole.getIntegerInput(coords.end, 5);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    coords = await PseudoConsole.printByChar('\n\nEnter an integer between 5 and 10: ');
-    input = await PseudoConsole.getIntegerInput(coords.end, 5, 10);
-    await PseudoConsole.printByChar('\nInput: \"' + input + '\"');
-    wait(200);
-    await PseudoConsole.printByChar('\n\nPress enter to continue...');
+    PLAYER.inventory.push(Weapon.createInstance('ascent:bronze_sword'), Weapon.createInstance('ascent:iron_sword'), Weapon.createInstance('ascent:gun'));
+
+    let testRoom = new Room({
+        onEntry: async(self) => {
+            await PseudoConsole.printByChar('Entering room!\n');
+        },
+        combatants: [
+            PLAYER,
+            Enemy.createInstance('ascent:goblin'),
+            Enemy.createInstance('ascent:goblin', {
+                name: 'Injured Goblin',
+                health: 35,
+                image: (() => {
+                    let newImage = Enemy.enemyList['ascent:goblin'].image.slice();
+                    newImage[1] = '§text-dark-green§' + '/|' + '§text-red§' + '\\' + '§//§';
+                    return newImage;
+                })()
+            }),
+            Enemy.createInstance('ascent:goblin', {
+                name: 'Gun Goblin',
+                minDamage: Number.MAX_SAFE_INTEGER,
+                maxDamage: Number.MAX_SAFE_INTEGER
+            })
+        ]
+    });
+
+    await PseudoConsole.printByChar('\n\n');
+    await testRoom.enterRoom();
+    await testRoom.playRoom();
+    await testRoom.exitRoom();
+
+    await PseudoConsole.printByChar('\n\nPress enter to restart...');
     await PseudoConsole.waitForEnter();
-    await PseudoConsole.printByChar('\nYou pressed enter!!!');
-    wait(200);
-    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5));
-    await PseudoConsole.printByLine('\n' + ('\n§text-rainbow§asynchronous rainbows§/§').repeat(5), 50);
-    await PseudoConsole.printByChar('\n' + ('\n§text-rainbow-sync§synchronous rainbows§/§').repeat(5));
-    await PseudoConsole.printByChar('\n\n' + '§text-candy-cane§CANDYCANE§/§');
+    location.reload();
 
     return 'quit';
 }

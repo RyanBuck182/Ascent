@@ -10,6 +10,7 @@
 /** Functions associated with the pseudoconsole. Solely comprised of static members. */
 class PseudoConsole {
     static MAX_CHARS_PER_LINE = 90;
+    static MAX_CHARS_PER_COMBAT_COLUMN = 25;
     static DEFAULT_MILLISECONDS_PER_CHAR = 20;
     static DEFAULT_MILLISECONDS_PER_LINE = this.DEFAULT_MILLISECONDS_PER_CHAR * 20;
     static FONT_SIZE_PER_CONSOLE_WIDTH = 0.02;
@@ -28,6 +29,43 @@ class PseudoConsole {
      * @type {Array<String>}
      */
     static #outputClassArray = [];
+
+    /**
+     * Returns the appropriate font size for the current screen size.
+     * @returns {String} The font size.
+     */
+    static fontSize() {
+        return (this.pseudoConsole.offsetWidth * this.FONT_SIZE_PER_CONSOLE_WIDTH) + 'px';
+    }
+    
+    /**
+     * Returns an array of the lines of the pseudo console.
+     * @returns {NodeListOf<Element>} The lines of the pseudo console. 
+     */
+    static lines() {
+        return this.pseudoConsole.querySelectorAll('.consoleLine');
+    }
+
+    /**
+     * Finds the index of the last non-empty line.
+     * @returns {Number | undefined} The index of the last non-empty line. 0 if no non-empty lines. 
+     */
+    static lastNonEmptyLine() {
+        let lines = this.lines();
+        for (let i = lines.length - 1; i >= 0; i--)
+            if (lines[i].textContent.trim() != '')
+                return i;
+        return 0;
+    }
+
+    /**
+     * Returns the columns of a line of the pseudo console.
+     * @param {Element} line A line of the pseudo console.
+     * @returns {NodeListOf<ChildNode>} The columns of the line. 
+     */
+    static columns(line) {
+        return line.querySelectorAll('.consoleColumn');
+    }
 
     /**
      * Applies the output classes to an element.
@@ -350,22 +388,31 @@ class PseudoConsole {
     /**
      * Replaces the characters in a line with spaces.  
      * @param {Number} lineIndex The index of the line to clear. 
+     * @param {Boolean | undefined} hardClear Whether to hard clear the line. (delete the element)
      */
-    static clearLine(lineIndex) {
+    static clearLine(lineIndex, hardClear = false) {
         let lines = this.lines();
         let line = lines[lineIndex];
-        this.clearLineElement(line);
+        if (!hardClear)
+            this.clearLineElement(line);
+        else
+            line.remove();
     }
 
     /**
      * Clears multiple lines.  
      * @param {Number} startingLine The index of the line to start clearing.
-     * @param {Number} endingLine The index of the line to end clearing (exclusive). 
+     * @param {Number | undefined} endingLine The index of the line to end clearing (exclusive). 
+     * @param {Boolean | undefined} hardClear Whether to hard clear the lines. (delete the elements)
      */
-    static clearLines(startingLine, endingLine = 'last') {        
+    static clearLines(startingLine, endingLine = 'last', hardClear = false) {        
         let lines = this.lines();
-        for (let i = startingLine; i < ((endingLine == 'last') ? lines.length : endingLine); i++)
-            this.clearLineElement(lines[i]);
+        if (!hardClear)
+            for (let i = startingLine; i < ((endingLine == 'last') ? lines.length : endingLine); i++)
+                this.clearLineElement(lines[i]);
+        else
+            for (let i = startingLine; i < ((endingLine == 'last') ? lines.length : endingLine); i++)
+                lines[i].remove();
     }
 
     /**
@@ -477,7 +524,7 @@ class PseudoConsole {
             validInput = false;
             if (constraints.inputType === 'integer') {
                 input = input.trim();
-                if (!Number.isInteger(Number(input)))
+                if (!Number.isInteger(Number(input)) || input == '')
                     this.consoleInput.placeholder = 'Not An Integer';
                 else if (input < constraints.minValue)
                     this.consoleInput.placeholder = 'Too Small';
@@ -553,30 +600,5 @@ class PseudoConsole {
                 }
             });
         });
-    }
-
-    /**
-     * Returns the appropriate font size for the current screen size.
-     * @returns {String} The font size.
-     */
-    static fontSize() {
-        return (this.pseudoConsole.offsetWidth * this.FONT_SIZE_PER_CONSOLE_WIDTH) + 'px';
-    }
-
-    /**
-     * Returns an array of the lines of the pseudo console.
-     * @returns {NodeListOf<Element>} The lines of the pseudo console. 
-     */
-    static lines() {
-        return this.pseudoConsole.querySelectorAll('.consoleLine');
-    }
-
-    /**
-     * Returns the columns of a line of the pseudo console.
-     * @param {Element} line A line of the pseudo console.
-     * @returns {NodeListOf<ChildNode>} The columns of the line. 
-     */
-    static columns(line) {
-        return line.querySelectorAll('.consoleColumn');
     }
 }

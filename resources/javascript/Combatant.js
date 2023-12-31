@@ -7,31 +7,48 @@ class Combatant {
      * @param {{
      * name: String,
      * identifier: String,
-     * room: Room | undefined,
+     * image: Array<String>,
      * maxHealth: Number,
      * health: Number | undefined,
-     * onCombatStart: (self: Combatant) => void | undefined, 
-     * onRoundStart: (self: Combatant) => void | undefined, 
-     * onRoundEnd: (self: Combatant) => void | undefined, 
-     * doTurn: (self: Combatant) => void | undefined,
-     * onHeal: (self: Combatant, amount: Number) => void | undefined,
-     * onTakeDamage: (self: Combatant, amount: Number) => void | undefined,
-     * onDeath: (self: Combatant) => void | undefined,
+     * onCombatStart: (self: Combatant) => Promise<void> | undefined,
+     * onSummon: (self: Combatant) => Promise<void> | undefined,
+     * onRoundStart: (self: Combatant) => Promise<void> | undefined, 
+     * onRoundEnd: (self: Combatant) => Promise<void> | undefined, 
+     * doTurn: (self: Combatant) => Promise<void> | undefined,
+     * onHeal: (self: Combatant, amount: Number) => Promise<void> | undefined,
+     * onTakeDamage: (self: Combatant, amount: Number) => Promise<void> | undefined,
+     * onDeath: (self: Combatant) => Promise<void> | undefined,
      * extraProperties: Object | undefined,
-     * takeHeal: (self: Combatant, amount: Number) => void | undefined,
-     * takeDamage: (self: Combatant, amount: Number) => void | undefined,
-     * die: (self: Combatant) => void | undefined
+     * takeHeal: (self: Combatant, amount: Number) => Promise<void> | undefined,
+     * takeDamage: (self: Combatant, amount: Number) => Promise<void> | undefined,
+     * die: (self: Combatant) => Promise<void> | undefined
      * }} data Data associated with the combatant.
      */
     constructor(data) {
+        /**
+         * The room the combatant is in. 
+         * @type {Room}
+         */
+        this.room;
+
         /** The name of the combatant. */
         this.name = data.name;
+        if (lengthIfDisplayed(this.name) > PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN) {
+            console.warn('The name of the combatant with the id \"' + this.identifier + '\" is too long. Max length: ' + PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN);
+            this.name = truncateForDisplay(this.name);
+        }
 
         /** The identifier of the combatant. */
         this.identifier = data.identifier;
 
-        /** The room the combatant is in. */
-        this.room = data.room;
+        /** The image of the combatant to display in combat. */
+        this.image = data.image.slice();
+        for (let i = 0; i < this.image.length; i++) {
+            if (lengthIfDisplayed(this.image[i]) > PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN) {
+                console.warn('Line ' + (i + 1) + ' of the image of the combatant with the id \"' + this.identifier + '\" is too long. Max length: ' + PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN);
+                this.image[i] = truncateForDisplay(this.image[i]);
+            }
+        }
 
         /** The combatant's max health. */
         this.maxHealth = data.maxHealth;
@@ -39,83 +56,74 @@ class Combatant {
         /** The combatant's current health. */
         this.health = data.health || this.maxHealth;
 
-        if (data.onCombatStart)
-            this.onCombatStart = () => { data.onCombatStart(this); };
-    
-        if (data.onRoundStart)
-            this.onRoundStart = () => { data.onRoundStart(this); };
+        /** Runs when combat starts. */
+        this.onCombatStart = (data.onCombatStart) ? async() => { await data.onCombatStart(this); } : async() => {};
 
-        if (data.onRoundEnd)
-            this.onRoundEnd = () => { data.onRoundEnd(this); };
+        /** Runs when the enemy is summoned. */
+        this.onSummon = (data.onSummon) ? async() => { await data.onSummon(this); } : async() => {};
+        
+        /** Runs when the round starts. */
+        this.onRoundStart = (data.onRoundStart) ? async() => { await data.onRoundStart(this); } : async() => {};
 
-        if (data.doTurn)
-            this.doTurn = () => { data.doTurn(this); };
+        /** Runs when the round ends. */
+        this.onRoundEnd = (data.onRoundEnd) ? async() => { await data.onRoundEnd(this); } : async() => {};
+
+        /** The combatant's actions on it's turn. If this is undefined, the combatant does nothing on it's turn. */
+        this.doTurn = (data.doTurn) ? async() => {if (this.room && PLAYER.health > 0) await data.doTurn(this); } : async() => {};
 
         /** Runs when the combatant heals. */
-        this.onHeal = data.onHeal || (() => {});
+        this.onHeal = data.onHeal || (async() => {});
 
         /** Runs when the combatant takes damage. */
-        this.onTakeDamage = data.onTakeDamage || (() => {});
+        this.onTakeDamage = data.onTakeDamage || (async() => {});
 
         /** Runs when the combatant dies. */
-        this.onDeath = data.onDeath || (() => {});
+        this.onDeath = data.onDeath || (async() => {});
 
-        let extraPropertyNames = Object.getOwnPropertyNames(data.extraProperties || {});
-        for (let i = 0; i < extraPropertyNames.length; i++)
-            this[extraPropertyNames[i]] = data.extraProperties[extraPropertyNames[i]];
+        Object.assign(this, data.extraProperties);
 
         if (data.takeHeal)
-            this.takeHeal = (amount) => { data.takeHeal(this, amount); };
+            this.takeHeal = async(amount) => { await data.takeHeal(this, amount); };
 
         if (data.takeDamage)
-            this.takeDamage = (amount) => { data.takeDamage(this, amount); };
+            this.takeDamage = async(amount) => { await data.takeDamage(this, amount); };
 
         if (data.die)
-            this.die = () => { data.die(this); };
+            this.die = async() => { await data.die(this); };
     }
-
-    /** Runs when combat starts. */
-    onCombatStart = () => {};
-
-    /** The combatant's actions on it's turn. If this is undefined, the combatant does nothing on it's turn. */
-    doTurn = () => {};
-
-    /** Runs when the round starts. */
-    onRoundStart = () => {};
-
-    /** Runs when the round ends. */
-    onRoundEnd = () => {};
 
     /** 
      * Heals the combatant.
      * @param {Number} amount The amount to heal the combatant by.
      */
-    takeHeal(amount) {
+    async takeHeal(amount) {
         this.health += amount;
         if (this.health > this.maxHealth)
             this.health = this.maxHealth;
 
-        this.onHeal(this, amount);
+        await this.onHeal(this, amount);
     }
 
     /**
      * Deals damage to the combatant.
      * @param {Number} amount The amount to damage the combatant by.
      */
-    takeDamage(amount) {
-        this.health -= amount;
+    async takeDamage(amount) {
+        this.health = Math.max(this.health - amount, 0);
+        await this.room.displayCombatStats();
         
-        this.onTakeDamage(this, amount);
+        await this.onTakeDamage(this, amount);
         
         if (this.health <= 0)
-            this.die()
+            await this.die();
     }
 
     /** Kills the combatant. */
-    die() {
+    async die() {
         //fade out animation?
-        //remove from room?
 
-        this.onDeath(this);
+        await this.room.removeCombatant(this);
+
+        await this.onDeath(this);
     }
 }
