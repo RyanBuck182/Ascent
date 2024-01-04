@@ -171,6 +171,31 @@ class PseudoConsole {
     }
 
     /**
+     * Inserts a new console line before a specific line.
+     * @param {Number} lineIndex The line to insert the new line at.
+     * @returns {Element} The inserted new line.
+     */
+    static insertNewLine(lineIndex) {
+        let line = document.createElement('div');
+        line.className = 'consoleLine';
+        
+        line.style.fontSize = this.fontSize();
+        window.addEventListener('resize', () => { line.style.fontSize = this.fontSize() });
+
+        for (let i = 0; i < this.MAX_CHARS_PER_LINE; i++) {
+            let char = document.createElement('span');
+            char.textContent = ' ';
+            char.classList.add('consoleColumn');
+            line.appendChild(char);
+        }
+        line.column = 0;
+        
+        this.pseudoConsole.insertBefore(line, this.lines()[lineIndex]);
+        window.scrollTo(0, document.body.offsetHeight);
+        return line;
+    }
+
+    /**
      * Creates a new console line.
      * @returns {Element} The created new line.
      */
@@ -379,6 +404,9 @@ class PseudoConsole {
     static clearLineElement(line) {
         let columns = this.columns(line);
         for (let i = 0; i < columns.length; i++) {
+            let animations = columns[i].getAnimations();
+            for (let j = 0; j < animations.length; j++)
+                animations[j].cancel();
             columns[i].style.cssText = '';
             columns[i].textContent = ' ';
         }
