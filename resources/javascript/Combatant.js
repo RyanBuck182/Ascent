@@ -31,15 +31,15 @@ class Combatant {
          */
         this.room;
 
+        /** The identifier of the combatant. */
+        this.identifier = data.identifier;
+
         /** The name of the combatant. */
         this.name = data.name;
         if (lengthIfDisplayed(this.name) > PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN) {
             console.warn('The name of the combatant with the id \"' + this.identifier + '\" is too long. Max length: ' + PseudoConsole.MAX_CHARS_PER_COMBAT_COLUMN);
             this.name = truncateForDisplay(this.name);
         }
-
-        /** The identifier of the combatant. */
-        this.identifier = data.identifier;
 
         /** The image of the combatant to display in combat. */
         this.image = data.image.slice();
