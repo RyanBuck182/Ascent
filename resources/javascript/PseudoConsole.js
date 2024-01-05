@@ -135,8 +135,12 @@ class PseudoConsole {
 
     /** Removes the last pseudo class from the list of output classes. */
     static removeLastOutputClass() {
-        PseudoCSSClass.getClassFromId(this.#outputClassArray[this.#outputClassArray.length - 1]).onRemoval();
-        this.#outputClassArray.pop();
+        let outputClass = PseudoCSSClass.getClassFromId(this.#outputClassArray[this.#outputClassArray.length - 1]);
+        if (outputClass) {
+            outputClass.onRemoval();
+            this.#outputClassArray.pop();
+        } else
+            console.warn('Attempted to remove the last pseudo class but no pseudo classes could be found.');
     }
 
     /** 
